@@ -1,4 +1,4 @@
-package MyProject;
+package MyProject2;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -14,6 +14,11 @@ import javax.swing.*;
  * --------------------------------------
  */
 public class StylingPage extends JPanel implements ActionListener {
+	
+	// Styling을 위한 List
+	private ArrayList<String> topList = new ArrayList<String>(); 
+	private ArrayList<String> bottomsList = new ArrayList<String>();
+	private ArrayList<String> shoesList = new ArrayList<String>();
 	
 	JLabel lbTitle, lbTitle2;
 	JButton btBack, btRefresh;
@@ -70,20 +75,29 @@ public class StylingPage extends JPanel implements ActionListener {
 	    this.remove(plus2);
 	    
 	    // ListPage 클래스의 getter 메서드 호출해서 ArrayList 가져오기
-	    ListPage listPage = new ListPage();
-	    ArrayList<String> topName = listPage.getTopName();
-	    ArrayList<String> bottomsName = listPage.getBottomsName();
-	    ArrayList<String> shoesName = listPage.getShoesName();
-	        
+	    ListPage lp = ListPage.getInstance1();
+	    ArrayList<String> sortList = lp.getSortList();
+	    ArrayList<String> nameList = lp.getNameList();
+	    
+	    for(int i=0; i<sortList.size(); i++) {
+	    	if(sortList.get(i) == "상의") {
+	    		topList.add(nameList.get(i));
+	    	} else if(sortList.get(i) == "하의") {
+	    		bottomsList.add(nameList.get(i));
+	    	} else if(sortList.get(i) == "신발") {
+	    		shoesList.add(nameList.get(i));
+	    	}
+	    }
+
 	    //(상의 + 하의 + 신발)코디를 랜덤으로 추천해주기.
-	    int i = (int)(Math.random() * topName.size());
-	    top.setText("< Top >  "+ topName.get(i));
+	    int i = (int)(Math.random() * topList.size());
+	    top.setText("< Top >  "+ topList.get(i));
 			
-	    int j = (int)(Math.random() * bottomsName.size());
-	    bottoms.setText("< Bottoms >  "+ bottomsName.get(j));
+	    int j = (int)(Math.random() * bottomsList.size());
+	    bottoms.setText("< Bottoms >  "+ bottomsList.get(j));
 			
-	    int k = (int)(Math.random() * shoesName.size());
-	    shoes.setText("< Shoes >  "+ shoesName.get(k));
+	    int k = (int)(Math.random() * shoesList.size());
+	    shoes.setText("< Shoes >  "+ shoesList.get(k));
 			
 	    this.add(top);
 	    this.add(bottoms);

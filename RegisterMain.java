@@ -1,12 +1,9 @@
-package MyProject;
+package MyProject2;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.SQLException;
-
-import javax.swing.border.*;
 /**
  * --------------------------------------- 
  * @author 고수림

@@ -1,12 +1,11 @@
-package MyProject;
+package MyProject2;
 
 import javax.swing.*;
-
-
-import MyProject.ManagePage;
+import MyProject2.ManagePage;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 /**
  * --------------------------------------- 
  * @author 고수림
@@ -26,7 +25,7 @@ public class MyClosetApp extends JFrame implements ActionListener {
 	StylingPage sp = new StylingPage();
 	
 	private String sort; // 분류 (예: 아우터, 상의, 하의, 신발)
-	private static MyClosetApp instance;
+	private static MyClosetApp instance = new MyClosetApp();
 	
 	public MyClosetApp() {
 		
@@ -185,18 +184,21 @@ public class MyClosetApp extends JFrame implements ActionListener {
 		public void setSort(String sort) {
 		    this.sort = sort;
 		}	
-		public String getSort() {
+		public String getSort1() {
 	        return sort;
 	    }
 		
 		/** 인스턴스 생성 메서드 getInstance() 추가하는 메서드
 		 * */ 
+		
 	    public static MyClosetApp getInstance() {
 	        if (instance == null) {
 	            instance = new MyClosetApp();
 	        }
 	        return instance;
 	    }
+	    
+	    
 		
 	public static void main(String[] args) {
 		MyClosetApp my = MyClosetApp.getInstance();

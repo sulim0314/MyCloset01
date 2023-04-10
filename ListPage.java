@@ -1,13 +1,11 @@
-package MyProject;
+package MyProject2;
 
 import java.util.*;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+
 /**
  * --------------------------------------- 
  * @author 고수림
@@ -17,20 +15,18 @@ import java.sql.*;
  * --------------------------------------
  */
 public class ListPage extends JPanel implements ActionListener {
+	private static ListPage instance1 = new ListPage();
+	private ArrayList<String> sortList = new ArrayList<>(Arrays.asList("상의","상의","상의","상의","하의","하의","하의","하의","아우터","신발","신발","신발"));
+    private ArrayList<String> nameList = new ArrayList<>(Arrays.asList("하늘하늘한 블라우스","오버핏 반팔","슬림핏 V넥라인 반팔","가오리핏 예쁜 맨투맨","부츠컷핏 하이웨스트","무지 레깅스","5부 반바지","연청 롱치마","항공점퍼","하이 컨버스","나이키 운동화","워커"));
+    private ArrayList<String> brandList = new ArrayList<>(Arrays.asList("Zara","나이키","유니클로","노스페이스","리바이스","아디다스","Zara","보세","Zara","컨버스","나이키","닥터마틴"));
+    private ArrayList<String> colorList = new ArrayList<>(Arrays.asList("핑크색","흰색","하늘색","검은색","진청","검은색","베이지색","연청","검은색","검은색","흰색","검은색"));
+    private ArrayList<Integer> priceList = new ArrayList<>(Arrays.asList(50000,40000,30000,70000,70000,50000,50000,50000,90000,90000,150000,200000));
 
-	
-	private String titleArray[] = {"Sort", "Name", "Brand", "Color", "Price"};
-	// SORT 값을 저장할 ArrayList 선언
-	private ArrayList<String> topName = new ArrayList<String>(); 
-	private ArrayList<String> bottomsName = new ArrayList<String>();
-	private ArrayList<String> shoesName = new ArrayList<String>();
-	
 	JButton btSearch,btDelete,btRefresh; // 검색/ 삭제/ 새로고침
 	JButton btBack;
 	JTextArea ta; // 중앙
 	JLabel lbTitle, lbSearch;
 	JTextField tfSearch;
-	JTable table; // JTable 추가
 	JScrollPane scrollPane;
 	
 	public ListPage() {
@@ -72,6 +68,7 @@ public class ListPage extends JPanel implements ActionListener {
 		btRefresh.setBackground(Color.pink);
 		btRefresh.setForeground(Color.black);
 		this.add(btRefresh);
+		btRefresh.addActionListener(this);
 		
 		// 삭제 버튼
 		btDelete = new JButton ("Delete");
@@ -79,181 +76,75 @@ public class ListPage extends JPanel implements ActionListener {
 		btDelete.setFont(new Font("Serif", Font.BOLD, 15));
 		this.add(btDelete);
 		
-		/** 목록 삭제하기
-		 * */
-		btDelete.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String name = JOptionPane.showInputDialog("어떤 것을 삭제하시겠습니까? 이름키워드를 입력해주세요.");
-				
-		        if (name == null) {
-		            JOptionPane.showMessageDialog(null, "다시 입력해주세요.");
-		        } else if (name.equals("")) {
-		        	JOptionPane.showMessageDialog(null, "다시 입력해주세요.");
-		        } else {
-		        	try {
-		                // SQL 연결
-		                Class.forName("oracle.jdbc.driver.OracleDriver");    
-		                String url = "jdbc:oracle:thin:@localhost:1521:XE";
-		                String user = "scott", pwd = "tiger";
-		                Connection con = DriverManager.getConnection(url, user, pwd);
-		                
-		                // 쿼리 실행
-		                String sql = "DELETE FROM CLOSET WHERE NAME LIKE ?";
-		                PreparedStatement ps = con.prepareStatement(sql);
-		                ps.setString(1, "%" + name + "%");
-		                ps.executeUpdate();
-
-		                // 자원 해제
-		                ps.close();
-		                con.close();
-
-		                JOptionPane.showMessageDialog(null, "삭제되었습니다.");
-		            } catch (ClassNotFoundException | SQLException ex) {
-		                ex.printStackTrace();
-		            }
-		        }
-			}
-		}); 
-	
+		// JTextArea ta에 현재 갖고 있는 List보여주기
+		ta = new JTextArea();
+		scrollPane = new JScrollPane(ta);
+		scrollPane.setBounds(8, 190, 320, 230);
+		this.add(scrollPane);
 		
-		/** SQL에서 테이블 가져오기
-		 * */
-	    try { 
-	    	// SQL 연결
-			Class.forName("oracle.jdbc.driver.OracleDriver");	
-			String url = "jdbc:oracle:thin:@localhost:1521:XE";
-			String user = "scott", pwd = "tiger";
-			Connection con = DriverManager.getConnection(url, user, pwd);
-			
-		    // 쿼리 실행
-		    Statement stmt = con.createStatement();
-		    ResultSet rs = stmt.executeQuery("SELECT * FROM CLOSET");
-
-		    // 테이블 모델 생성
-		    DefaultTableModel model = new DefaultTableModel(titleArray, 0);
-
-		    // 검색된 데이터를 모델에 추가
-		    while (rs.next()) {
-		        String sort = rs.getString("SORT");
-		        String name = rs.getString("NAME");
-		        String brand = rs.getString("BRAND");
-		        String color = rs.getString("COLOR");
-		        int price = rs.getInt("PRICE");
-		        model.addRow(new Object[]{sort, name, brand, color, price});
-		     // JTable의 데이터를 ArrayList에 추가
-	           
-		        if (sort != null && name != null) {
-		            if (sort.equals("상의")) {
-		                topName.add(name);
-		            } else if (sort.equals("하의")) {
-		                bottomsName.add(name);
-		            } else if (sort.equals("신발")) {
-		                shoesName.add(name);
-		            }
-		        }
-		    }
-
-		    // 자원 해제
-		    rs.close();
-		    stmt.close();
-		    con.close();
-
-		    // JTable 생성
-		    table = new JTable(model);
-		    table.setEnabled(false);
-		    table.getTableHeader().setReorderingAllowed(false); // 컬럼 이동 비활성화
-		    
-		    // JScrollPane에 JTable 추가
-		    scrollPane = new JScrollPane(table);
-		    scrollPane.getViewport().setBackground(Color.white);
-		    scrollPane.setBounds(1,180, 333, 250);
-		    add(scrollPane);
-
-		    table.setModel(model);
-		    
-	    } catch (ClassNotFoundException | SQLException e) {
-	        e.printStackTrace();
-	    }
-	    
+		
+		
+		for(int i=0; i<sortList.size(); i++) {
+			ta.append(" "+ (i+1) +". ");
+			ta.append(" | ");
+			ta.append(sortList.get(i));
+			ta.append(" | ");
+			ta.append(nameList.get(i));
+			ta.append(" | ");
+			ta.append(brandList.get(i));
+			ta.append(" | ");
+			ta.append(colorList.get(i));
+			ta.append(" | ");
+			ta.append(""+priceList.get(i));
+			ta.append("\n");
+		}
+		
 	}
 
-	/** ArrayList 'Top'종류 getter 메서드
-	 * */
-    public ArrayList<String> getTopName() {
-        return topName;
-    }
-    /** ArrayList 'Bottoms'종류 getter 메서드
-	 * */
-    public ArrayList<String> getBottomsName() {
-        return bottomsName;
-    }
-    /** ArrayList 'Shoes'종류 getter 메서드
-	 * */
-    public ArrayList<String> getShoesName() {
-        return shoesName;
-    }
-    
-    /** 검색어를 가져온 뒤, SQL과 연결 후, 해당 검색어를 검색하여 테이블을 전환해주는 메서드.
+    /** 새로고침/ 삭제
 	 * */
     @Override
     public void actionPerformed(ActionEvent e) {
-        // 검색어 가져오기
-        String searchKeyword = tfSearch.getText();
         
-        try {
-            // SQL 연결
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-            String url = "jdbc:oracle:thin:@localhost:1521:XE";
-            String user = "scott", pwd = "tiger";
-            Connection con = DriverManager.getConnection(url, user, pwd);
-            
-            // 쿼리 실행
-            PreparedStatement ps = con.prepareStatement("SELECT * FROM CLOSET WHERE NAME LIKE ?");
-            ps.setString(1, "%" + searchKeyword + "%");
-            ResultSet rs = ps.executeQuery();
-
-            // 테이블 모델 생성
-            DefaultTableModel model = new DefaultTableModel(titleArray, 0);
-
-            // 검색된 데이터를 모델에 추가
-            while (rs.next()) {
-                String sort = rs.getString("SORT");
-                String name = rs.getString("NAME");
-                String brand = rs.getString("BRAND");
-                String color = rs.getString("COLOR");
-                int price = rs.getInt("PRICE");
-                model.addRow(new Object[]{sort, name, brand, color, price});
-            }
-
-            // 자원 해제
-            rs.close();
-            ps.close();
-            con.close();
-
-            // 기존의 JScrollPane에서 JTable 객체 제거
-            this.remove(scrollPane);
-            
-            // 새로운 JTable 객체 생성
-            JTable newTable = new JTable(model);
-            newTable.setEnabled(false);
-            newTable.getTableHeader().setReorderingAllowed(false);
-            
-            // JScrollPane에 새로운 JTable 객체 추가
-            JScrollPane newScrollPane = new JScrollPane(newTable);
-            newScrollPane.getViewport().setBackground(Color.white);
-            newScrollPane.setBounds(1,180, 333, 250);
-            add(newScrollPane);
-            
-            // 화면 갱신
-            revalidate();
-            repaint();
-            
-        } catch (ClassNotFoundException | SQLException ex) {
-            ex.printStackTrace();
+        if(e.getSource() == btRefresh) {
+        	ta.setText("");
+        } else if(e.getSource() == btDelete) {
+        	String name = JOptionPane.showInputDialog("무엇을 삭제하시겠습니까? 번호를 입력해주세요.");
+	        if (name == null) {
+	            JOptionPane.showMessageDialog(null, "다시 입력해주세요.");
+	        } else if (name.equals("")) {
+	        	JOptionPane.showMessageDialog(null, "다시 입력해주세요.");
+	        } 
         }
+
+      
     }
-	
-   
+    
+    public static ListPage getInstance1() {
+        return instance1;
+    }
+    public ArrayList<String> getSortList() {
+        return sortList;
+    }
+
+    public ArrayList<String> getNameList() {
+        return nameList;
+    }
+
+    public ArrayList<String> getBrandList() {
+        return brandList;
+    }
+
+    public ArrayList<String> getColorList() {
+        return colorList;
+    }
+
+    public ArrayList<Integer> getPriceList() {
+        return priceList;
+    }
+    
+    
+    
+
 }
 

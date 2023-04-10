@@ -1,12 +1,13 @@
-package MyProject;
+package MyProject2;
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.border.*;
-import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 /**
  * --------------------------------------- 
  * @author 고수림
@@ -17,6 +18,9 @@ import java.util.ArrayList;
  */
 public class RegisterPage extends JPanel implements ActionListener {
 
+	private String sort, name, brand, color;
+	private int price;
+	
 	JTextField tfName; // 명칭
 	JTextField tfBrand; // 브랜드
 	JTextField tfColor; // 색깔
@@ -74,72 +78,31 @@ public class RegisterPage extends JPanel implements ActionListener {
 		btRg.addActionListener(this);
 		btCc.addActionListener(this);
 	
-		
 	} //----------------------------------------------------
+	/** 등록하기 버튼을 누르면 ArrayList에 저장되는 기능을 구현하는 메서드가 실행됨.
+	*  취소하기 버튼을 누르면 TestField가 초기화되는 기능을 구현하는 메서드가 실행됨.
+	* */
 	@Override
 	public void actionPerformed(ActionEvent e){
-		/** 등록하기 버튼을 누르면 SQL에 저장되는 기능을 구현하는 메서드가 실행됨.
-		 *  취소하기 버튼을 누르면 TestField가 초기화되는 기능을 구현하는 메서드가 실행됨.
-		 * */
 		Object obj=e.getSource();
 		
-		 if(obj==btRg) { // 작성 후 등록하기
-		        
-		        try {
-		            confirm();
-		        } catch (ClassNotFoundException | SQLException | InvalidPriceException e1) {
-		            JOptionPane.showMessageDialog(btCc, e1.getMessage());
-		            return;
-		        }
-		             
-		        JOptionPane.showMessageDialog(btCc, "등록되었습니다.");
-		        reset();
-		        
-		    } else if(obj==btCc) { // 작성 후 취소하기
-		        reset();
-		    }
+		 if(obj == btRg) { // 작성 후 등록하기
+			 ListPage lp = ListPage.getInstance1();
+			 MyClosetApp MCA = new MyClosetApp();
+			 lp.getSortList().add(MCA.getSort1());
+			 lp.getNameList().add(tfName.getText());
+			 lp.getBrandList().add(tfBrand.getText());
+			 lp.getColorList().add(tfColor.getText());
+			 lp.getPriceList().add(Integer.parseInt(tfPrice.getText()));
+			 JOptionPane.showMessageDialog(null, "등록되었습니다.");
+			 reset();
+		 } else if(obj == btCc) { // 작성 후 취소하기
+			 reset();
+		   }
 		
 	} 
-	/** 등록하기 버튼을 누르면 SQL에 저장되는 기능을 구현하는 메서드.
-	 * */
-	public void confirm() throws ClassNotFoundException, SQLException, InvalidPriceException { 
-		
-		try {
-	        int price = Integer.parseInt(tfPrice.getText());
-	    } catch (NumberFormatException e) {
-	        throw new InvalidPriceException("< Price > 에 숫자만 입력해주세요.");
-	    }
-		
-		// SQL 에 데이터 넣기.
-		Class.forName("oracle.jdbc.driver.OracleDriver");	
-		String url = "jdbc:oracle:thin:@localhost:1521:XE";
-		String user = "scott", pwd = "tiger";
-		Connection con = DriverManager.getConnection(url, user, pwd);
-							
-		String sql = "insert into closet(sort,name,brand,color,price)";	
-			   sql += "values(?,?,?,?,?)";
 
-		PreparedStatement ps = con.prepareStatement(sql);
-		
-		MyClosetApp MCA = MyClosetApp.getInstance();
-		ps.setString(1, MCA.getSort());
-		ps.setString(2, tfName.getText());
-		ps.setString(3, tfBrand.getText());
-		ps.setString(4, tfColor.getText());
-		ps.setInt(5, Integer.parseInt(tfPrice.getText()));
-		
-		String sql2 = "commit"; 
-		Statement stmt = con.createStatement();		
-		stmt.execute(sql2);
-		
-		int n = ps.executeUpdate();
-
-		if(ps != null) ps.close();
-		if(stmt != null) stmt.close();
-		if(con != null) con.close();
-		
-	} 
-	/**  취소하기 버튼을 누르면 TestField가 초기화되는 기능을 구현하는 메서드.
+	/**  취소하기 버튼을 누르면 TextField가 초기화되는 기능을 구현하는 메서드.
 	 * */
 	public void reset() {
 		// 작성 후 취소하기 (모두 초기화)
@@ -149,13 +112,7 @@ public class RegisterPage extends JPanel implements ActionListener {
 		tfPrice.setText("");
 		tfName.requestFocus(); //입력 포커스 주기
 	} 
+
 	
-	/** 사용자 정의 Exception으로, <Price>에 숫자가 아닌 글자가 오면 오류 메세지를 띄움.
-	 * */
-	public class InvalidPriceException extends Exception {
-	    public InvalidPriceException(String message) {
-	        super(message);
-	    }
-	}
 	
 }
